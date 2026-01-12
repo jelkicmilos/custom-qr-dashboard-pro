@@ -1,0 +1,69 @@
+Projekat: Wordpress plugin „Custom QR Dashboard Pro“
+Vizija je da napravim sveobuhvatni, modularni WordPress plugin ILI MOŽDA WEB APLIKACIJU (još nisam odlučio u konačnosti ali sam započeo projekat kao wordpress plugin) za upravljanje inventarom putem QR kodova koji će služiti za tri glavne poslovne sfere:
+1.	Klasičan Asset Management: Praćenje imovine kompanija (IT oprema, mašine) kao što to radi npr. GoCodes sistem.
+2.	Lični inventar krajnjih korisnika: Praćenje ličnih stvari (kolekcije, alati) putem QR kodova.
+3.	Specijalizovani sistem QR kodova: Proizvodi sa ugrađenim QR kodovima koji vode na prilagođene poruke kada se skeniraju.
+Kĺjučni funkcionalni zahtevi su:
+•	Višenamenski sistem koji može da prilagodi interfejs i polja podataka u zavisnosti od vrste upotrebe.
+•	Potpuna separacija podataka: Svaki korisnik ima potpuno svoj set stavki, statusa, lokacija i kategorija – svoje podatke u okviru svojih QR kodova koje samostalno definiše.
+•	Ključni deo sistema i definicije: U slučaju poslovne sfere klasičnog asset management sistema to je QR kod i povezana platforma – kao što to ima GoCodes. U slučaju poslovne sfere „Lični inventar krajnjih korisnika“ - QR kod i povezana web stranica na koju vodi QR kod prilikom skeniranja. Svaka pojedinačna web stranica sadrži niz podataka. Kroz sistem se to vidi na način da se pojavljuje stavka koja ima svoj jedinstveni QR kod. QR kod vodi na jedinstvenu web stranu stavke u sistemu. Stavka predstavlja skup parametara i informacija koji se dobijaju prilikom otvaranja web strane određenog QR koda. Svaka stavka ima osnovne predefinisane podatke kao i dodatne koje korisnik sam može definisati i uređivati kada se uloguje na svoj nalog. Predefinisani parametri koju svaka stavka mora da ima su: naziv, status (predefinisani statusi: aktivno, neaktivno, u servisu, izgubljeno, prodato, rezervisano. Treba da postoji opcija da može da se doda novi status koji sam korisnik može da definiše), lokacija, kategorija (dodaj novu kategoriju koju sam korisnik definiše), napomena, slika, QR kod, datum i vreme kreiranja QR koda i od strane kog korisnika. Dodatni podaci u osnovi nisu definisani pa ih korisnik može definisati ukoliko mu trebaju tako sto će moći da doda novi podatak o stavki i da ga definiše, a potom i unosi njegove vrednosti. U slučaju poslovne sfere specijalizovanog sistema QR kodova to je QR kod koji vodi na određenu web stranicu sa određenom porukom npr. neka lepa poruka. U ovom slučaju administrator definiše poruku i njen izgled na web stranici koja će se otvoriti prilikom skeniranja QR koda.
+•	Detaljno logovanje aktivnosti (sa IP-om) za sve akcije u sistemu.
+•	Višeslojni interfejs: Administratorski panel, korisnički dashboard i javni pristup.
+•	Korisnici: Super administrator i korisnici. U slučaju poslovne sfere klasičnog asset management-a postoje na nivou korisničkih naloga administratori i ostali korisnici.
+•	Bezbednost podataka: Sistem mora biti u stanju da čuva podatke na način da su podaci sigurni. Backup podataka treba da bude omogućen i sa strane administratora, i sa strane samih korisnika.
+2. Detaljan Status Projekta (Verzija 1.4.3)
+Projekat je trenutno u verziji 1.4.3. Ovo je detaljan pregled implementacije.
+Tehnologija i Arhitektura
+•	Platforma: Čisti WordPress plugin, bez korišćenja spoljnih framework-a.
+•	Arhitektura: Proceduralni PHP sa jasnom organizacijom u sekcijama unutar jednog glavnog fajla (custom-qr-dashboard-pro.php).
+•	Podaci: Koriste se WordPress usermeta (cqd_stavke) za skladištenje stavki po korisniku. Ovo omogućava potpunu izolaciju i jednostavnost.
+•	Baza podataka: Kreirana je custom tabela wp_cqd_activity_log za centralizovano logovanje aktivnosti.
+Implementirani Standardi Kodiranja
+1.	Bezbednost:
+o	Svi podaci se pročišćavaju pre unosom (sanitize_text_field, sanitize_textarea_field).
+o	Koristi se wp_verify_nonce() za zaštitu AJAX i formi.
+o	Direktni pristup fajlovima blokiran je sa defined('ABSPATH') or die().
+2.	WordPress Standardi:
+o	Plugin koristi dedinjene WordPress hook-ove (add_action, add_filter).
+o	Shortcode-ovi su registrovani (add_shortcode) za [custom_register], [custom_login], [custom_dashboard], [custom_stavka_page].
+o	Za dodavanje admin menija korišćeni su add_menu_page() i add_submenu_page().
+o	Za kreiranje custom tabela korišćen je dbDelta().
+3.	Obrada Grešaka:
+o	Funkcija cqd_log_activity() ima opsežan try...catch blok i logovanje grešaka u error_log.
+o	Implementirane su debug funkcije (cqd_debug_activity_system) sa kontrolom pristupa za admine.
+Trenutno Stanje Koda
+Plugin je sada stabilan. Rešili smo kĺjučan problem sa logovanjem zamenom nefunkcionalnih custom hook-ova (do_action('cqd_item_added')) sa direktnim pozivima funkcije cqd_log_activity() u svim procesima (dodavanje, brisanje, AJAX). Tabela aktivnosti se kreira na init hook-u i sadrži kolonu za IP adresu.
+Osnovna struktura direktorijuma koju ste kreirali je:
+/plugins/custom-qr-dashboard-pro/
+├── custom-qr-dashboard-pro.php (glavni fajl, verzija 1.4.3)
+Trenutno su sve funkcionalnosti u glavnom fajlu, dok se modularizacija priprema u verziji 1.5.0.
+3. Planirani Razvoj po Verzijama
+Plan je strukturiran tako da se od stabilne 1.4.3 pređe na modularnu i proširenu 1.5.0.
+Verzija	Fokus	Ključne Aktivnosti i Standardi
+1.4.3 (TRENUTNA)	Stabilizacija	Popravka logovanja, provera IP kolone u bazi, unifikacija koda u jednom fajlu.
+1.5.0 (PLANIRANA)	Modularizacija & Sistemski Dizajn	1. Podela koda: Izvlačenje funkcionalnosti iz glavnog fajla u includes/.
+2. Tri "Modula": Dizajn sistema koji prepoznaje namenu (Asset management/Lični inventar krajnjih korisnika/Specijalizovani sistem QR kodova).
+3. Poboljšan UI/UX: Unapređen CSS i JavaScript u assets/.
+4. Export/Import: Eksport podataka u CSV/JSON.
+1.6.0+ (VIZIJA)	Napredne Funkcionalnosti	1. Backup sistem sa zakazivanjem.
+2. Grafikoni i napredne statistike.
+3. Bulk operacije nad stavkama.
+4. Multi-tenancy (opciono, ako zatreba).
+Standard kodiranja za 1.5.0 bi podrazumevao:
+1.	Razdvajanje odgovornosti: Podelu koda na administrativne, shortcode, AJAX i asset fajlove.
+2.	Kontrola pristupa: Dosledno korišćenje current_user_can().
+3.	Internacionalizacija: Priprema stringova za prevod pomoću __() funkcije.
+4.	Dokumentacija koda: Dodavanje PhpDoc komentara za sve važnije funkcije.
+Dalji pravci razvoja:
+Polazimo od 1.4.3 verzije i nju unapređujemo. 
+Tri sfere korišćenja trebaju biti pojedinačni moduli.
+Pricing planovi i vizija naplate nije još definisana – ostaviti prostor da se to kasnije definiše.
+Dodatni razvojni zahtevi:
+Svaka nova verzija treba da se unapredi za inkrement 0.1. 
+Svakom novom verzijom potrebno je stvoriti tekstualni fajl koji:
+- opisuje sistem u potpunosti; 
+- opisuje trenutno razvijeno stanje sistema; 
+- opisuje unapređenja u odnosu na prethodnu verziju koda; 
+- opisuje dalje planirane pravce razvoja sistema.
+
+
