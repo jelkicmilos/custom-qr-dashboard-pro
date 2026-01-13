@@ -35,7 +35,7 @@ defined('ABSPATH') or die('No direct access!');
 
 // Plugin verzije
 
-define('CQD_VERSION', '1.4.3');
+define('CQD_VERSION', '1.5.0');
 
 define('CQD_DB_VERSION', '1.0');
 
@@ -3296,5 +3296,3 @@ function cqd_dashboard_shortcode() {
         $output .= '</div>';
 
     }
-
-
